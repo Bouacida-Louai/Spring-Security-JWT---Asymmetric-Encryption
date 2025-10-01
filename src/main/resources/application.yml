@@ -1,11 +1,13 @@
 spring:
   application:
     name: spring-security-jwt-asymmetric-app
+
   datasource:
     url: jdbc:mysql://localhost:3306/my-sec-deb
     username: root
     password: adminadmin
     driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,4 +18,5 @@ spring:
 app:
   security:
     jwt:
-
+      access-token-expiration: 86400000     # 24h for local testing
+      refresh-token-expiration: 604800000   # 7 days

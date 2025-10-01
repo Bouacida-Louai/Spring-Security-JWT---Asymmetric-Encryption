@@ -24,6 +24,7 @@ import static java.util.stream.Collectors.toList;
 @Builder
 @Table(name = "USERS")
 @EntityListeners(AuditingEntityListener.class)
+
 public class User implements UserDetails {
     @Id @GeneratedValue(strategy =  GenerationType.UUID)
     private String id;
@@ -61,6 +62,9 @@ public class User implements UserDetails {
     @Column(name = "IS_PHONE_VERIFIED")
     private boolean phoneVerified;
 
+    @Column(name = "IS_CREDENTILAS_EXPIRED")
+    private boolean credentialsExpired;
+
 
     @CreatedDate
     @Column(name = "CREATED_DATE" , updatable = false, nullable = false)
@@ -95,24 +99,31 @@ public class User implements UserDetails {
                 new SimpleGrantedAuthority(role.getName())).toList();
     }
 
+
+
+
     @Override
     public String getUsername() {
-        return "";
+        return this.email;
     }
 
     @Override
+    public String getPassword() {
+        return "";
+    }
+    @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return !this.locked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return !this.expired;
     }
 
     @Override
