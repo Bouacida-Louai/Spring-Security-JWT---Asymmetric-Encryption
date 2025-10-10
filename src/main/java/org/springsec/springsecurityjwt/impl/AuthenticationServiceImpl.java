@@ -25,6 +25,7 @@ import org.springsec.springsecurityjwt.user.User;
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Server
 @RequiredArgsConstructor
 @Slf4j
@@ -66,14 +67,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         chekUserEmail(request.getEmail());
         checkUserPhoneNumber(request.getPhoneNumber());
         checkPassword(request.getPassword(),request.getConfirmPassword());
+
        final Role userRole = this.roleRepository.findByName("ROLE_USER")
                .orElseThrow(()->new EntityNotFoundException("Role User not found"));
+
         final List<Role> roles = new ArrayList<>();
         roles.add(userRole);
 
         final User user =this.userMapper.toUser(request);
         user.setRoles(roles);
+        log.debug("Saving user {}",user);
+        this.userRepository.save(user);
 
+        final List<User> users =new ArrayList<>();
+        users.add(user);
+        userRole.setUsers(users);
+        this.roleRepository.save(userRole);
 
     }
 
@@ -102,14 +111,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
 
-
-
     }
 
 
 
     @Override
     public AuthenticationResponse refreshToken(RefreshRequest request) {
-        return null;
+        final String newAccessToken=jwtService.generateRefreshToken(request.getRefreshToken());
+        final String tokenType="Bearer";
+        return AuthenticationResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(request.getRefreshToken())
+                .tokenType(tokenType)
+                .build();
+
+
     }
 }
